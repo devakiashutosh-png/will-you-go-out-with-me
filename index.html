@@ -21,11 +21,6 @@
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
   }
 
-  @keyframes confettiSide {
-    0% { transform: translateX(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateX(var(--tx)) rotate(var(--rot)) scale(0); opacity: 0; }
-  }
-
   @keyframes popIn {
     0% { transform: scale(0); }
     70% { transform: scale(1.15); }
@@ -163,6 +158,22 @@
     .boy { font-size: 26px; }
     .boy-flowers { right: -34px; font-size: 26px; }
   }
+
+  .side-confetti {
+    position: fixed;
+    font-size: 28px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @keyframes blastLeft {
+    0% { left: 0; top: 50%; transform: translateY(-50%) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+    100% { left: 110vw; top: 50%; transform: translateY(-50%) translateX(0) rotate(720deg) scale(1.2); opacity: 0; }
+  }
+  @keyframes blastRight {
+    0% { right: 0; top: 50%; transform: translateY(-50%) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+    100% { right: 110vw; top: 50%; transform: translateY(-50%) translateX(0) rotate(-720deg) scale(1.2); opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -209,7 +220,7 @@
 
   noBtn.addEventListener('click', () => {
     noClicks++;
-    yesScale += 0.35;
+    yesScale += 0.16;
     yesBtn.style.transform = `scale(${yesScale})`;
 
     if (noClicks < noTexts.length) {
@@ -236,6 +247,7 @@
     noBtn.style.cursor = 'not-allowed';
     document.getElementById('boy').style.animation = 'floaty 0.3s ease-in-out 8';
     makeItRain();
+    confettiBlastFromSides();
   });
 
   function maybeShowFloat(target, phrases) {
@@ -248,8 +260,26 @@
     target.appendChild(span);
   }
 
+  function confettiBlastFromSides() {
+    const shapes = ['🎉', '💖', '💘', '🌸', '✨', '💅', '🎊', '💋', '🍭', '🍓'];
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        const side = Math.random() > 0.5 ? 'blastLeft' : 'blastRight';
+        const c = document.createElement('span');
+        c.className = 'side-confetti';
+        c.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+        c.style.animationName = side;
+        c.style.animationDuration = (1.2 + Math.random() * 1.5) + 's';
+        c.style.animationDelay = (Math.random() * 0.3) + 's';
+        c.style.top = (15 + Math.random() * 70) + '%';
+        c.style.fontSize = (18 + Math.random() * 36) + 'px';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }, i * 60);
+    }
+  }
+
   function makeItRain() {
-    // Heart rain from top
     for (let i = 0; i < 40; i++) {
       setTimeout(() => {
         const h = document.createElement('span');
@@ -261,31 +291,6 @@
         document.getElementById('hearts').appendChild(h);
         setTimeout(() => h.remove(), 6000);
       }, i * 80);
-    }
-
-    // Confetti blast from sides
-    const confettiEmojis = ['🎉', '🎊', '✨', '💖', '💕', '🌸', '💘', '🎀', '💝', '❤️'];
-    for (let side = 0; side < 2; side++) {
-      for (let i = 0; i < 30; i++) {
-        setTimeout(() => {
-          const c = document.createElement('span');
-          c.style.cssText = `
-            position: fixed;
-            top: ${40 + Math.random() * 20}vh;
-            ${side === 0 ? 'left: -5vw' : 'right: -5vw'};
-            font-size: ${20 + Math.random() * 24}px;
-            pointer-events: none;
-            user-select: none;
-            z-index: 9999;
-            animation: confettiSide ${0.8 + Math.random() * 0.6}s ease-out forwards;
-            --tx: ${side === 0 ? (60 + Math.random() * 40) : -(60 + Math.random() * 40)}vw;
-            --rot: ${(Math.random() - 0.5) * 720}deg;
-          `;
-          c.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
-          document.body.appendChild(c);
-          setTimeout(() => c.remove(), 2000);
-        }, i * 30);
-      }
     }
   }
 </script>
